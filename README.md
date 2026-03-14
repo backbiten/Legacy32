@@ -1,26 +1,37 @@
-Legacy 32 bit is meant for nostalgic Windows users who remember Windows 95 who remember Windows NT and Windows 2000 and then also earlier facets of Linux distributions like Debian and Ubuntu and Linux Mint that operated on Legacy 32-bit and also the likes of ancient copies of Mac OS x from the 1990s and the 2000s have Legacy nostalgic 32-bit we're trying to find everything we can upload it to the Internet so we can rebuild a wonderful idea and a new way to teach people how to speak read and know each other for a change without the corporations breathing down our neck
+Legacy32 is being redefined as the root for a new generation of 32-bit architecture. By implementing a High-Density Nano-Kernel, we reclaim the competitive edge in cache efficiency and deterministic latency.
 
-# Legacy32
+## Core Architecture (The 'Stratch' Nano-Kernel)
 
-## x86 Registers
+1. Cache-Resident Core: Designed to stay within L1 cache at all times.
+2. Register-Passed IPC: Using EAX/EBX/ECX for zero-latency messaging.
+3. External Paging: Memory policy managed by a Ring 3 Pager service.
 
-### General Purpose Registers
-- EAX  →  Accumulator Register       (arithmetic/logic)
-- EBX  →  Base Register              (memory addressing)
-- ECX  →  Counter Register           (loop operations)
-- EDX  →  Data Register              (I/O operations)
-- ESI  →  Source Index               (string/memory ops)
-- EDI  →  Destination Index          (string/memory ops)
-- ESP  →  Stack Pointer              (top of stack)
-- EBP  →  Base Pointer               (stack frame base)
+## The Root Registry (Naming Server)
 
-### Segment Registers
-- CS   →  Code Segment
-- DS   →  Data Segment
-- SS   →  Stack Segment
-- ES   →  Extra Segment
-- FS / GS → Additional Segments
+To ensure modularity, a Naming Server handles service discovery:
 
-### Special Registers
-- EIP  →  Instruction Pointer        (next instruction address)
-- EFLAGS → Status/Control Flags
+```c
+// The Naming Server: How microsized parts find each other
+void naming_server_main() {
+    message_t msg;
+    while(1) {
+        ipc_receive(ANY_SOURCE, &msg);
+        if (msg.type == REGISTER_SERVICE) {
+            register_capability(msg.service_name, msg.cap);
+        } else if (msg.type == LOOKUP_SERVICE) {
+            capability_t target = find_service(msg.service_name);
+            ipc_reply(msg.sender, target);
+        }
+    }
+}
+```
+
+## Project Structure
+
+```
+backbiten/Legacy32/
+├── core/                # Nano-Kernel (L1 Cache Optimized)
+├── servers/             # Pager, Naming, Root/Init
+├── drivers/             # User-space Ring 3 Drivers
+└── lib/                 # 'Root-Lib' for 32-bit microsystems
+```
